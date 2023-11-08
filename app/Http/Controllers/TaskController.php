@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
+use App\Models\Phase;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
 
 class TaskController extends Controller
 {
@@ -19,7 +23,10 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return \App\Models\Phase::with('tasks.user')->get();
+        return Phase::with('tasks.user')
+            ->leftJoin('tasks', 'phases.id', '=', 'tasks.phase_id')
+            ->select(DB::raw('count(tasks.id) as task_count, phases.*'))
+            ->groupBy('phases.id')->get();
     }
 
     /**
@@ -27,7 +34,7 @@ class TaskController extends Controller
      */
     public function users()
     {
-        return \App\Models\User::all();
+        return User::all();
     }
 
     /**

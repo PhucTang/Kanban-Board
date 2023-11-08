@@ -1,19 +1,20 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
+import _ from 'lodash';
 
 export const useKanbanStore = defineStore('kanban', {
   state: () => {
     return { 
-        hoveredName: 'nothing',
-        selectedTask: null,
-        phases: [],
-        users: [],
-        creatingTask: false,
-        creatingTaskProps: {
-          name: '',
-          phase_id: null,
-          user_id: null,
-        },
-        self: null,
+      hoveredName: 'nothing',
+      selectedTask: null,
+      phases: [],
+      users: [],
+      creatingTask: false,
+      creatingTaskProps: {
+        name: '',
+        phase_id: null,
+        user_id: null,
+      },
+      self: null,
     }
   },
   actions: {
@@ -21,13 +22,21 @@ export const useKanbanStore = defineStore('kanban', {
       this.hoveredName = 'nothing'
     },
     selectTask(task) {
-        this.selectedTask = task
+      this.selectedTask = _.cloneDeep(task)
     },
     unselectTask(task) {
-        this.selectedTask = null
+      this.resetTask()
+      this.selectedTask = null
     },
     hasSelectedTask() {
-        return this.selectedTask !== null
+      return this.selectedTask !== null
     },
+    resetTask() {
+      this.creatingTaskProps = {
+        name: '',
+        phase_id: null,
+        user_id: null,
+      }
+    }
   },
 })

@@ -134,24 +134,77 @@
                         </DialogTitle>
                         
                         <div class="mt-2">
-                            <div class="phases text-sm text-gray-500 flex items-center">
-                                In column&nbsp;
+                            <div class="phases text-sm text-gray-500">
                                 <div v-if="isEditTask">
-                                    <select v-model="kanban.selectedTask.phase_id" id="taskPhase" class="block w-[120px] h-[30px] rounded-md border-0 py-1 pl-3 pr-6 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6">
+                                    <label for="taskPhase" class="block text-sm font-medium leading-6 text-gray-900">In column</label>
+                                    <select v-model="kanban.selectedTask.phase_id" id="taskPhase" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6">
                                         <option v-for="phase in kanban.phases" :key="phase.id" :value="phase.id">{{ phase.name }}</option>
                                     </select>
                                 </div>
     
                                 <p v-else>
-                                    {{ kanban.phases[kanban.selectedTask.phase_id].name }}
+                                    In column {{ kanban.phases[kanban.selectedTask.phase_id].name }}
                                 </p>
                             </div>
                             
-                            <p class="text-sm text-gray-500">Assigned to {{ kanban.selectedTask.user.name }}</p>
+                            <div class="assignment text-sm text-gray-500">
+                                <Listbox as="div" v-if="isEditTask" v-model="kanban.selectedTask.user_id" class="mt-2">
+                                    <ListboxLabel class="block text-sm font-medium leading-6 text-gray-900">Assigned to</ListboxLabel>
+                                    <div class="relative mt-2">
+                                        <ListboxButton
+                                            class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6">
+                                            <span class="flex items-center">
+                                                <img 
+                                                    :src="getAvatar(kanban.users[kanban.selectedTask.user_id || kanban.self.id])" 
+                                                    alt="" 
+                                                    class="h-5 w-5 flex-shrink-0 rounded-full" 
+                                                />
+                                                <span class="ml-3 block truncate">{{ kanban.users[kanban.selectedTask.user_id || kanban.self.id].name }}</span>
+                                            </span>
+                                            <span
+                                                class="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
+                                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                            </span>
+                                        </ListboxButton>
+    
+                                        <transition leave-active-class="transition ease-in duration-100"
+                                            leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                            <ListboxOptions
+                                                class="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                <ListboxOption 
+                                                    as="template" 
+                                                    v-for="person in kanban.users" :key="person.id"
+                                                    :value="person.id" 
+                                                    v-slot="{ active, selected }"
+                                                >
+                                                    <li :class="[active ? 'bg-blue-600 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                                        <div class="flex items-center">
+                                                            <img 
+                                                                :src="getAvatar(person)" alt="{{ person.name }}"
+                                                                class="h-5 w-5 flex-shrink-0 rounded-full" 
+                                                            />
+                                                            <span :class="[selected ? 'font-semibold' : 'font-normal', 'ml-3 block truncate']">{{ person.name }}</span>
+                                                        </div>
+    
+                                                        <span 
+                                                            v-if="selected"
+                                                            :class="[active ? 'text-white' : 'text-blue-600', 'absolute inset-y-0 right-0 flex items-center pr-4']"
+                                                        >
+                                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                        </span>
+                                                    </li>
+                                                </ListboxOption>
+                                            </ListboxOptions>
+                                        </transition>
+                                    </div>
+                                </Listbox>
+                                <p v-else>Assigned to {{ kanban.users[kanban.selectedTask.user_id].name }}</p>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
-                <div class="mt-5 sm:mt-6 flex justify-end">
+                <div class="mt-5 sm:mt-4 flex justify-end">
                     <button type="button"
                         class="inline-flex w-[64px] justify-center rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                         @click="saveTask()">Save
@@ -163,7 +216,6 @@
                 </div>
             </generic-modal>
         </Teleport>
-        
     </div>
 </template>
 
@@ -306,17 +358,32 @@ const deleteCard = async (id) => {
     }
 }
 
-const editCard = (task) => {
-    try {
-        isEditTask.value = !isEditTask.value
-    } catch (error) {
-        console.error('There was an error deleting the task!', error);
-    }
+const editCard = () => {
+    isEditTask.value = !isEditTask.value;
 }
 
 const closeEditModal = () => {
-    isEditTask.value = false
-    return kanban.unselectTask()
+    isEditTask.value = false;
+    return kanban.unselectTask();
+}
+
+const saveTask = async () => {
+    try {
+        const { data } = await axios.put('/api/tasks/' + kanban.selectedTask.id, kanban.selectedTask);
+        if (data) {
+            for (const key in kanban.phases) {
+                const old_data = kanban.phases[key].tasks.filter(task=> task.id == data.id);
+                if (old_data.length > 0) {
+                    kanban.phases[old_data[0].phase_id].task_count -= 1;
+                    kanban.phases[old_data[0].phase_id].tasks = kanban.phases[key].tasks.filter(task=> task.id != data.id);
+                }
+            }
+            kanban.phases[data.phase_id].tasks.push(data);
+            kanban.phases[data.phase_id].task_count += 1;
+        }
+    } catch (error) {
+        console.error('There was an error updating the task!', error);
+    }
 }
 
 onMounted(async () => {

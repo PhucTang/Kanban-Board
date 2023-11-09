@@ -25,6 +25,7 @@ class UpdateTaskRequest extends FormRequest
             'name' => ['string', 'max:255'],
             'phase_id' => ['integer', 'exists:phases,id'],
             'user_id' => ['integer', 'exists:users,id'],
+            // 'completed_at' => ['date'],
         ];
     }
 }

@@ -8,11 +8,20 @@
                     {{ kanban.phases[props.phase_id].task_count }}
                 </div>
             </div>
-            <PlusIcon 
-                @click="createTask()" 
-                class="mb-3 h-6 w-6 text-white hover:cursor-pointer" 
-                aria-hidden="true" 
-            />
+            <div class="flex">
+                <CheckCircleIcon 
+                    class="h-6 w-6 hover:cursor-pointer"
+                    :class="kanban.phases[props.phase_id].is_completion? ' text-green-400' : 'text-white'"
+                    aria-hidden="true" 
+                    @click="completionPhase()"
+                />
+                <PlusIcon 
+                    @click="createTask()" 
+                    class="mb-3 h-6 w-6 ml-3 text-white hover:cursor-pointer" 
+                    aria-hidden="true" 
+                />
+            </div>
+            
         </div>
         <template v-if="kanban.phases[props.phase_id].tasks.length > 0">
             <task-card 
@@ -36,7 +45,7 @@
 <script setup>
 // get the props
 import { useKanbanStore } from '../stores/kanban'
-import { PlusIcon } from '@heroicons/vue/20/solid'
+import { PlusIcon, CheckCircleIcon } from '@heroicons/vue/20/solid'
 
 const kanban = useKanbanStore()
 
@@ -46,6 +55,16 @@ const props = defineProps({
         required: true
     },
 })
+
+
+const completionPhase = async () => {
+    kanban.phases[props.phase_id].is_completion = !kanban.phases[props.phase_id].is_completion
+    const params =  {
+        name: kanban.phases[props.phase_id].name,
+        is_completion: kanban.phases[props.phase_id].is_completion
+    }
+    await axios.put('/api/phases/' + props.phase_id, params);
+}
 
 const createTask = function () {
     kanban.creatingTask = true;

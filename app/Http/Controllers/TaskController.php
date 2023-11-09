@@ -75,12 +75,19 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        $bodyContent = $request->getContent();
         if ($task) {
+            $date = $task->completed_at;
+            $phases = Phase::where('id', $request->phase_id)->first();
+            if ($phases->is_completion && $task->completed_at == null) {
+                $date = date('d-m-Y h:i:s');
+            }
+            
+
             Task::with('user')->where('id', $task->id)->update([
                 'name' => $request->name ? $request->name: $task->name,
                 'phase_id' => $request->phase_id ? $request->phase_id: $task->phase_id,
                 'user_id' => $request->user_id ? $request->user_id: $task->user_id,
+                'completed_at' => $date,
             ]);
         }
         return Task::with('user')->where('id', $task->id)->first();

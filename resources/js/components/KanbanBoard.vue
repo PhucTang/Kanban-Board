@@ -191,6 +191,7 @@
                                                             :class="[active ? 'text-white' : 'text-blue-600', 'absolute inset-y-0 right-0 flex items-center pr-4']"
                                                         >
                                                             <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                            
                                                         </span>
                                                     </li>
                                                 </ListboxOption>
@@ -223,7 +224,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useKanbanStore } from '../stores/kanban'
 import { DialogTitle, Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
-import { CheckIcon, ChevronUpDownIcon, TrashIcon, PencilIcon } from '@heroicons/vue/20/solid'
+import { CheckIcon, ChevronUpDownIcon, TrashIcon, PencilIcon, CheckCircleIcon } from '@heroicons/vue/20/solid'
 import { sha256 } from 'js-sha256';
 
 

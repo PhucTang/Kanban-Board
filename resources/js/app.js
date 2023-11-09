@@ -1,6 +1,8 @@
 import './bootstrap';
 import { createApp } from 'vue';
-import { createPinia } from 'pinia'
+import { createPinia } from 'pinia';
+import PerfectScrollbar from 'vue3-perfect-scrollbar';
+import 'vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css';
 
 import Alpine from 'alpinejs';
 import TaskCard from './components/TaskCard.vue';
@@ -11,6 +13,7 @@ import GenericModal from './components/modals/GenericModal.vue';
 const pinia = createPinia()
 const app = createApp({});
 app.use(pinia);
+app.use(PerfectScrollbar);
 
 app.component('TaskCard', TaskCard);
 app.component('TaskColumn', TaskColumn);

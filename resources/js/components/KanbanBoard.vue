@@ -1,6 +1,6 @@
 <template>
-    <div class="max-w-7xl flex-1 mx-auto flex flex-col overflow-auto sm:px-6 lg:px-8">
-        <div class="w-full mb-6 flex">
+    <div class="max-w-7xl flex-1 mx-auto flex flex-col overflow-auto sm:px-6 lg:px-8 relative">
+        <div class="w-full flex">
             <Teleport to="body">
                 <generic-modal :show="kanban.creatingTask" @close="kanban.creatingTask = false" key="createTaskModal">
                     <div>
@@ -95,6 +95,10 @@
             </Teleport>
         </div>
 
+        <PlusIcon 
+            class="absolute top-0 right-1 h-6 w-6 rounded-full hover:cursor-pointer text-white bg-sky-950" 
+            @click="createPhase()"
+        />
         <div id="kanban-container" class="flex-1 flex overflow-auto scrollbar-hide shadow-lg">
             <div class="text-gray-900">
                 <div class="h-full flex overflow-x-auto overflow-y-auto space-x-4">
@@ -224,7 +228,7 @@
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useKanbanStore } from '../stores/kanban'
 import { DialogTitle, Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
-import { CheckIcon, ChevronUpDownIcon, TrashIcon, PencilIcon, CheckCircleIcon } from '@heroicons/vue/20/solid'
+import { CheckIcon, ChevronUpDownIcon, TrashIcon, PencilIcon, CheckCircleIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/20/solid'
 import { sha256 } from 'js-sha256';
 
 
@@ -329,6 +333,17 @@ const getSelf = async () => {
         }
     } catch (error) {
         console.error('There was an error fetching the logged in user!', error);
+    }
+}
+
+const createPhase = async () => {
+    try {
+        const params = {
+            name: 'To do'
+        }
+        await axios.post('/api/phases', params);
+    } catch (error) {
+        console.error('There was an error creating the new phase!', error);
     }
 }
 

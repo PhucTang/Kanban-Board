@@ -29,7 +29,8 @@ class PhaseController extends Controller
      */
     public function store(StorePhaseRequest $request)
     {
-        //
+        $phase = Phase::insert(["name" => $request->name]);
+        return $phase;
     }
 
     /**
@@ -67,6 +68,6 @@ class PhaseController extends Controller
      */
     public function destroy(Phase $phase)
     {
-        //
+        Phase::destroy($phase->id);
     }
 }

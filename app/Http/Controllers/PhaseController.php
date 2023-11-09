@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePhaseRequest;
 use App\Http\Requests\UpdatePhaseRequest;
 use App\Models\Phase;
+use Illuminate\Support\Facades\DB;
 
 class PhaseController extends Controller
 {
@@ -29,8 +30,12 @@ class PhaseController extends Controller
      */
     public function store(StorePhaseRequest $request)
     {
-        $phase = Phase::insert(["name" => $request->name]);
-        return $phase;
+        $phase = Phase::create(["name" => $request->name]);
+        return Phase::with('tasks.user')
+            ->leftJoin('tasks', 'phases.id', '=', 'tasks.phase_id')
+            ->where("phases.id", $phase->fresh()->id)
+            ->select(DB::raw('count(tasks.id) as task_count, phases.*'))
+            ->groupBy('phases.id')->get();
     }
 
     /**

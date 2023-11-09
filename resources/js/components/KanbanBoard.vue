@@ -95,9 +95,52 @@
             </Teleport>
         </div>
 
+        <div class="w-full flex">
+            <Teleport to="body">
+                <generic-modal :show="isCreatePhase" @close="isCreatePhase = false" key="createPhaseModal">
+                    <div>
+                        <div class="mt-3 sm:mt-2">
+                            <DialogTitle as="h3" class="mb-6 text-base font-semibold leading-6 text-gray-900">Create a new phase</DialogTitle>
+                            <div>
+                                <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Phase Name</label>
+                                <div class="relative mt-2">
+                                    <input 
+                                        type="text" 
+                                        v-model="name" id="name"
+                                        class="peer block w-full border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+                                    />
+                                    <p 
+                                        v-if="hasError('name')" 
+                                        class="mt-2 text-sm text-red-600" 
+                                        id="name-error"
+                                    >
+                                        {{ getError('name') }}
+                                    </p>
+                                    <div 
+                                        class="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-blue-600"
+                                        aria-hidden="true" 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 sm:mt-6">
+                            <button 
+                                type="button"
+                                class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                @click="createPhase()"
+                            >
+                                Add Phase!
+                            </button>
+                        </div>
+                    </div>
+                </generic-modal>
+            </Teleport>
+        </div>
+
         <PlusIcon 
             class="absolute top-0 right-1 h-6 w-6 rounded-full hover:cursor-pointer text-white bg-sky-950" 
-            @click="createPhase()"
+            @click="isCreatePhase=true"
         />
         <div id="kanban-container" class="flex-1 flex overflow-auto scrollbar-hide shadow-lg">
             <div class="text-gray-900">
@@ -236,6 +279,8 @@ const kanban = useKanbanStore()
 const selected = ref(null)
 const errors = ref(null)
 const isEditTask = ref(false)
+const isCreatePhase = ref(false)
+const name = ref('')
 
 const getAvatar = function (user) {
     if (user.profile_picture_url !== null) {
@@ -339,9 +384,12 @@ const getSelf = async () => {
 const createPhase = async () => {
     try {
         const params = {
-            name: 'To do'
+            name: name.value,
         }
-        await axios.post('/api/phases', params);
+        const { data } = await axios.post('/api/phases', params);
+        kanban.phases[data[0].id] = data[0]
+        isCreatePhase.value = false
+        name.value = ''
     } catch (error) {
         console.error('There was an error creating the new phase!', error);
     }
@@ -396,6 +444,7 @@ const saveTask = async () => {
             }
             kanban.phases[data.phase_id].tasks.push(data);
             kanban.phases[data.phase_id].task_count += 1;
+            closeEditModal();
         }
     } catch (error) {
         console.error('There was an error updating the task!', error);

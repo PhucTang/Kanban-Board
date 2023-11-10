@@ -48,25 +48,34 @@
                                         </span>
                                     </ListboxButton>
 
-                                    <transition leave-active-class="transition ease-in duration-100"
-                                        leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                    <transition 
+                                        leave-active-class="transition ease-in duration-100"
+                                        leave-from-class="opacity-100" 
+                                        leave-to-class="opacity-0"
+                                    >
                                         <ListboxOptions
                                             class="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                            <ListboxOption as="template" v-for="person in kanban.users" :key="person.id"
-                                                :value="person.id" v-slot="{ active, selected }">
-                                                <li :class="[active ? 'bg-blue-600 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                                    <div class="flex items-center">
-                                                        <img :src="getAvatar(person)" alt="{{ person.name }}"
-                                                            class="h-5 w-5 flex-shrink-0 rounded-full" />
-                                                        <span :class="[selected ? 'font-semibold' : 'font-normal', 'ml-3 block truncate']">{{ person.name }}</span>
-                                                    </div>
+                                            <perfect-scrollbar 
+                                                :options="{suppressScrollX: true}" 
+                                                @ps-y-reach-end="loadMore"
+                                                class="h-[88px]"
+                                            >
+                                                <ListboxOption as="template" v-for="person in kanban.users" :key="person.id"
+                                                    :value="person.id" v-slot="{ active, selected }">
+                                                    <li :class="[active ? 'bg-blue-600 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                                        <div class="flex items-center">
+                                                            <img :src="getAvatar(person)" alt="{{ person.name }}"
+                                                                class="h-5 w-5 flex-shrink-0 rounded-full" />
+                                                            <span :class="[selected ? 'font-semibold' : 'font-normal', 'ml-3 block truncate']">{{ person.name }}</span>
+                                                        </div>
 
-                                                    <span v-if="selected"
-                                                        :class="[active ? 'text-white' : 'text-blue-600', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                    </span>
-                                                </li>
-                                            </ListboxOption>
+                                                        <span v-if="selected"
+                                                            :class="[active ? 'text-white' : 'text-blue-600', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                        </span>
+                                                    </li>
+                                                </ListboxOption>
+                                            </perfect-scrollbar>
                                         </ListboxOptions>
                                     </transition>
                                 </div>
@@ -271,7 +280,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, reactive } from 'vue'
 import { useKanbanStore } from '../stores/kanban'
 import { DialogTitle, Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { CheckIcon, ChevronUpDownIcon, TrashIcon, PencilIcon, CheckCircleIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/20/solid'
@@ -284,6 +293,13 @@ const selected = ref(null)
 const errors = ref(null)
 const isEditTask = ref(false)
 const isCreatePhase = ref(false)
+const isStop = ref(false)
+const state = reactive({
+    pagination:{
+        limit: 20,
+        page: 0,
+    }
+})
 const name = ref('')
 
 const getAvatar = function (user) {
@@ -353,15 +369,27 @@ const refreshTasks = async () => {
     }
 }
 
-const refreshUsers = async () => {
+const refreshUsers = async (isLoadMore) => {
     try {
-        const response = await axios.get('/api/users');
-        const originalUsers = response.data;
-        // rekey originalUsers to use the id property in the objects as the array key
-        kanban.users = originalUsers.reduce((acc, cur) => {
-            acc[cur.id] = cur;
-            return acc;
-        }, {});
+        if (!isStop.value) {
+            const page = isLoadMore ? state.pagination.page + 1 : 0;
+            const params= { page: page, limit: state.pagination.limit };
+            
+            const response = await axios.get('/api/users', { params });
+            const originalUsers = response.data;
+            // rekey originalUsers to use the id property in the objects as the array key
+            const users = originalUsers.reduce((acc, cur) => {
+                acc[cur.id] = cur;
+                return acc;
+            }, {});
+            kanban.users = isLoadMore ? Object.assign(kanban.users, users) : users
+
+            if (originalUsers.length == 0 || originalUsers.length < state.pagination.limit) {
+                isStop.value = true;
+            } else {
+                isStop.value = false;
+            }
+        }
     } catch (error) {
         console.error('There was an error fetching the users!', error);
     }
@@ -470,6 +498,10 @@ const checkMove = async(item) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+const loadMore = async () => {
+    await refreshUsers(true);
 }
 
 onMounted(async () => {

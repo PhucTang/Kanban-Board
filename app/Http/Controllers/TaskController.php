@@ -8,6 +8,7 @@ use App\Models\Task;
 use App\Models\Phase;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 
 class TaskController extends Controller
@@ -32,9 +33,12 @@ class TaskController extends Controller
     /**
      * Display a listing of the Users resource.
      */
-    public function users()
+    public function users(Request $request)
     {
-        return User::all();
+        $page = $request->query('page');
+        $limit = $request->query('limit');
+        $offset = $limit * $page;
+        return DB::table('users')->offset($offset)->limit($limit)->get();
     }
 
     /**

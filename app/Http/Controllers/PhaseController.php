@@ -30,7 +30,7 @@ class PhaseController extends Controller
      */
     public function store(StorePhaseRequest $request)
     {
-        $phase = Phase::create(["name" => $request->name]);
+        $phase = Phase::create($request->validated());
         return Phase::with('tasks.user')
             ->leftJoin('tasks', 'phases.id', '=', 'tasks.phase_id')
             ->where("phases.id", $phase->fresh()->id)
@@ -60,9 +60,18 @@ class PhaseController extends Controller
     public function update(UpdatePhaseRequest $request, Phase $phase)
     {
         if ($phase) {
+
+            if ($request->old_order_number || $request->new_order_number) {
+                // update phase orther
+                Phase::where('order_number', $request->new_order_number)->update([
+                    'order_number' => $request->old_order_number
+                ]);
+            }
+
             Phase::where('id', $phase->id)->update([
                 'name' => $request->name ? $request->name: $phase->name,
-                'is_completion' => $request->is_completion ? $request->is_completion : false
+                'is_completion' => $request->is_completion ? $request->is_completion : false,
+                'order_number' => $request->new_order_number ? $request->new_order_number : $phase->order_number,
             ]);
         }
         return Phase::with('tasks.user')->where('id', $phase->id)->first();

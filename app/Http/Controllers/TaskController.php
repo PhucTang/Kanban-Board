@@ -26,7 +26,7 @@ class TaskController extends Controller
         return Phase::with('tasks.user')
             ->leftJoin('tasks', 'phases.id', '=', 'tasks.phase_id')
             ->select(DB::raw('count(tasks.id) as task_count, phases.*'))
-            ->groupBy('phases.id')->get();
+            ->groupBy('phases.id')->orderBy('phases.order_number', 'ASC')->get();
     }
 
     /**
@@ -81,9 +81,8 @@ class TaskController extends Controller
             if ($phases->is_completion && $task->completed_at == null) {
                 $date = date('d-m-Y h:i:s');
             }
-            
 
-            Task::with('user')->where('id', $task->id)->update([
+            Task::where('id', $task->id)->update([
                 'name' => $request->name ? $request->name: $task->name,
                 'phase_id' => $request->phase_id ? $request->phase_id: $task->phase_id,
                 'user_id' => $request->user_id ? $request->user_id: $task->user_id,

@@ -23,6 +23,7 @@ class StorePhaseRequest extends FormRequest
     {
         return [
             'name' => ['required','string', 'max:255'],
+            'order_number' => ['integer'],
         ];
     }
 }

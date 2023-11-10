@@ -3,15 +3,15 @@
     <div class="p-4">
         <div class="flex items-center justify-between">
             <div class="header flex items-center mb-3">
-                <h2 class="text-lg text-zinc-100 font-black">{{ kanban.phases[props.phase_id].name }}</h2>
+                <h2 class="text-lg text-zinc-100 font-black">{{ currentKanban.name }}</h2>
                 <div class="rounded-full w-[20px] h-[20px] flex items-center justify-center text-white bg-gray-400 p-[3px] ml-[8px] text-[12px]">
-                    {{ kanban.phases[props.phase_id].task_count }}
+                    {{ currentKanban.task_count }}
                 </div>
             </div>
             <div class="flex">
                 <CheckCircleIcon 
                     class="h-6 w-6 hover:cursor-pointer"
-                    :class="kanban.phases[props.phase_id].is_completion? ' text-green-400' : 'text-white'"
+                    :class="currentKanban.is_completion? ' text-green-400' : 'text-white'"
                     aria-hidden="true" 
                     @click="completionPhase()"
                 />
@@ -23,11 +23,11 @@
             </div>
             
         </div>
-        <template v-if="kanban.phases[props.phase_id].tasks.length > 0">
+        <template v-if="currentKanban.tasks.length > 0">
             <perfect-scrollbar :options="{suppressScrollX: true}">
                 <div class="h-[500px]">
                     <task-card 
-                        v-for="(task, index) in kanban.phases[props.phase_id].tasks" 
+                        v-for="(task, index) in currentKanban.tasks" 
                         :key="index"
                         :task="task"
                     />
@@ -49,8 +49,9 @@
 
 <script setup>
 // get the props
-import { useKanbanStore } from '../stores/kanban'
-import { PlusIcon, CheckCircleIcon, XMarkIcon } from '@heroicons/vue/20/solid'
+import { useKanbanStore } from '../stores/kanban';
+import { PlusIcon, CheckCircleIcon, XMarkIcon } from '@heroicons/vue/20/solid';
+import { computed } from "vue";
 
 const kanban = useKanbanStore()
 
@@ -61,15 +62,19 @@ const props = defineProps({
     },
 })
 
+const currentKanban = computed(() => {
+    return kanban.phases.filter((item) => item.id == props.phase_id)[0]
+})
+
 
 const completionPhase = async () => {
     try {
-        kanban.phases[props.phase_id].is_completion = !kanban.phases[props.phase_id].is_completion
         const params =  {
-            name: kanban.phases[props.phase_id].name,
-            is_completion: kanban.phases[props.phase_id].is_completion
+            name: currentKanban.name,
+            is_completion: !currentKanban.value.is_completion,
         }
         await axios.put('/api/phases/' + props.phase_id, params);
+        kanban.setCompletion(props.phase_id, !currentKanban.value.is_completion);
     } catch (error) {
         console.log(error)
     }
@@ -83,7 +88,7 @@ const createTask = function () {
 const removeTask = async () => {
     try {
         await axios.delete('/api/phases/' + props.phase_id);
-        delete kanban.phases[props.phase_id]
+        kanban.phases = kanban.phases.filter((item) => item.id != props.phase_id)
     } catch (error) {
         console.log(error)
     }

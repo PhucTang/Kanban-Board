@@ -37,6 +37,13 @@ export const useKanbanStore = defineStore('kanban', {
         phase_id: null,
         user_id: null,
       }
+    },
+    setCompletion(phase_id, isCompletion) {
+      this.phases.forEach(phase => {
+        if (phase.id == phase_id) {
+          phase.is_completion = isCompletion
+        }
+      })
     }
   },
 })

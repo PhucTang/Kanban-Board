@@ -36,7 +36,57 @@ class UserSeeder extends Seeder
         User::factory()->create([
             'name' => 'Chewbacca', 
             'profile_picture_url' => '/img/chewbacca.jpg',
-            'email' => 'HairyHero@WookieeWorld.com',
+            'email' => 'Chewbacca@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'David', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'David@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Leona', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Leona@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Vin', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Vin@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Rock', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Rock@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Vica', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Vica@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Messi', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Messi@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Ronaldo', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Ronaldo@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Ablade', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Ablade@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Thomas', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Thomas@WookieeWorld.com',
+        ]);
+        User::factory()->create([
+            'name' => 'Lidma', 
+            'profile_picture_url' => '/img/chewbacca.jpg',
+            'email' => 'Lidma@WookieeWorld.com',
         ]);
     }
 }

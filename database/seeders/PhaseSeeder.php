@@ -16,11 +16,11 @@ class PhaseSeeder extends Seeder
         Phase::factory()
             ->count(5)
             ->sequence(
-                ['name' => 'Backlog'],
-                ['name' => 'To Do'],
-                ['name' => 'Doing'],
-                ['name' => 'Done'],
-                ['name' => 'Archived'],)
+                ['name' => 'Backlog', 'order_number' => 1, "is_completion" => false],
+                ['name' => 'To Do', 'order_number' => 2, "is_completion" => false],
+                ['name' => 'Doing', 'order_number' => 3, "is_completion" => false],
+                ['name' => 'Done', 'order_number' => 4, "is_completion" => true],
+                ['name' => 'Archived', 'order_number' => 5, "is_completion" => false],)
             ->create();
     }
 }

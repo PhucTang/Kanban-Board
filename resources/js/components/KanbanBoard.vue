@@ -145,6 +145,8 @@
         <div id="kanban-container" class="flex-1 flex overflow-auto scrollbar-hide shadow-lg">
             <div class="text-gray-900">
                 <VueDraggableNext 
+                    :list="kanban.phases" 
+                    @change="checkMove" 
                     class="h-full flex overflow-x-auto overflow-y-auto space-x-4">
                     <task-column
                         v-for="col in kanban.phases" :phase_id="col.id"
@@ -345,10 +347,7 @@ const refreshTasks = async () => {
     try {
         const response = await axios.get('/api/tasks');
         const originalTasks = response.data;
-        kanban.phases = originalTasks.reduce((acc, cur) => {
-            acc[cur.id] = cur;
-            return acc;
-        }, {});
+        kanban.phases = originalTasks
     } catch (error) {
         console.error('There was an error fetching the tasks!', error);
     }
@@ -385,11 +384,16 @@ const getSelf = async () => {
 
 const createPhase = async () => {
     try {
+        const ids = kanban.phases.map(object => {
+            return object.order_number;
+        });
+        const max = Math.max(...ids);
         const params = {
             name: name.value,
+            order_number: max + 1,
         }
         const { data } = await axios.post('/api/phases', params);
-        kanban.phases[data[0].id] = data[0]
+        kanban.phases.push(data[0])
         isCreatePhase.value = false
         name.value = ''
     } catch (error) {
@@ -453,16 +457,20 @@ const saveTask = async () => {
     }
 }
 
-// const log = (value) => {
-//     console.log(value)
-// }
-
-// const checkMove = (item) => {
-//     console.log(item)
-        // :list="kanban.phases" 
-        // :move="checkMove" 
-        // @change="log" 
-// }
+const checkMove = async(item) => {
+    console.log(item.moved)
+    const phase = item.moved
+    try {
+        const params =  {
+            old_order_number: phase.oldIndex + 1,
+            new_order_number: phase.newIndex + 1,
+            is_completion: phase.element.is_completion,
+        }
+        await axios.put('/api/phases/' + phase.element.id, params);
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 onMounted(async () => {
 

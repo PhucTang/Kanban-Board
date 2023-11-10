@@ -12,6 +12,7 @@ class Phase extends Model
     protected $fillable = [
         'name',
         'is_completion',
+        'order_number',
     ];
 
     function tasks()

@@ -23,6 +23,7 @@
         "lodash": "^4.17.21",
         "pinia": "^2.1.7",
         "vue": "^3.2.36",
+        "vue-draggable-next": "^2.2.1",
         "vue-loader": "^17.3.0",
         "vue3-perfect-scrollbar": "^1.6.1"
     }

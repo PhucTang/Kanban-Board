@@ -144,13 +144,14 @@
         />
         <div id="kanban-container" class="flex-1 flex overflow-auto scrollbar-hide shadow-lg">
             <div class="text-gray-900">
-                <div class="h-full flex overflow-x-auto overflow-y-auto space-x-4">
+                <VueDraggableNext 
+                    class="h-full flex overflow-x-auto overflow-y-auto space-x-4">
                     <task-column
-                     v-for="col in kanban.phases" :phase_id="col.id"
-                     :key="col.id"
+                        v-for="col in kanban.phases" :phase_id="col.id"
+                        :key="col.id"
                     >
                     </task-column>
-                </div>
+                </VueDraggableNext>
             </div>
         </div>
 
@@ -273,6 +274,7 @@ import { useKanbanStore } from '../stores/kanban'
 import { DialogTitle, Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { CheckIcon, ChevronUpDownIcon, TrashIcon, PencilIcon, CheckCircleIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/20/solid'
 import { sha256 } from 'js-sha256';
+import { VueDraggableNext } from 'vue-draggable-next'
 
 
 const kanban = useKanbanStore()
@@ -450,6 +452,17 @@ const saveTask = async () => {
         console.error('There was an error updating the task!', error);
     }
 }
+
+// const log = (value) => {
+//     console.log(value)
+// }
+
+// const checkMove = (item) => {
+//     console.log(item)
+        // :list="kanban.phases" 
+        // :move="checkMove" 
+        // @change="log" 
+// }
 
 onMounted(async () => {
 

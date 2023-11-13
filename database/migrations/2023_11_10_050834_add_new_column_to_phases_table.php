@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('phases', function (Blueprint $table) {
-            $table->mediumInteger('order_number')->autoIncrement()->default(1);
+            $table->mediumInteger('order_number')->default(1);
         });
     }
 

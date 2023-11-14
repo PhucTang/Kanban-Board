@@ -34,7 +34,7 @@ class TaskSeeder extends Seeder
             ->state(new Sequence(
                 fn (Sequence $sequence) => [ 
                     'user_id' => User::whereName('Luke Skywalker')->first()->id, 
-                    'phase_id' => Phase::all()->random() 
+                    'phase_id' => Phase::where("order_number", 1)->first()->id
                 ],
             ))
             ->create();
@@ -58,7 +58,7 @@ class TaskSeeder extends Seeder
             ->state(new Sequence(
                 fn (Sequence $sequence) => [ 
                     'user_id' => User::whereName('Princess Leia Organa')->first()->id, 
-                    'phase_id' => Phase::all()->random() 
+                    'phase_id' => Phase::where("order_number", 2)->first()->id
                 ],
             ))
             ->create();
@@ -82,7 +82,7 @@ class TaskSeeder extends Seeder
             ->state(new Sequence(
                 fn (Sequence $sequence) => [ 
                     'user_id' => User::whereName('Han Solo')->first()->id, 
-                    'phase_id' => Phase::all()->random() 
+                    'phase_id' => Phase::where("order_number", 3)->first()->id
                 ],
             ))
             ->create();
@@ -106,7 +106,7 @@ class TaskSeeder extends Seeder
             ->state(new Sequence(
                 fn (Sequence $sequence) => [ 
                     'user_id' => User::whereName('Darth Vader')->first()->id, 
-                    'phase_id' => Phase::all()->random() 
+                    'phase_id' => Phase::where("order_number", 4)->first()->id
                 ],
             ))
             ->create();
@@ -130,7 +130,7 @@ class TaskSeeder extends Seeder
             ->state(new Sequence(
                 fn (Sequence $sequence) => [ 
                     'user_id' => User::whereName('Chewbacca')->first()->id, 
-                    'phase_id' => Phase::all()->random() 
+                    'phase_id' =>  Phase::where("order_number", 5)->first()->id
                 ],
             ))
             ->create();

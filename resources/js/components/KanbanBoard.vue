@@ -156,10 +156,12 @@
                 <VueDraggableNext 
                     :list="kanban.phases" 
                     @change="checkMove" 
-                    class="h-full flex overflow-x-auto overflow-y-auto space-x-4">
+                    class="h-full flex overflow-x-auto overflow-y-auto space-x-4"
+                >
                     <task-column
-                        v-for="col in kanban.phases" :phase_id="col.id"
+                        v-for="col in kanban.phases" 
                         :key="col.id"
+                        :phase_id="col.id" 
                     >
                     </task-column>
                 </VueDraggableNext>

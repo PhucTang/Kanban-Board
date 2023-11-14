@@ -16,24 +16,30 @@
                     @click="completionPhase()"
                 />
                 <XMarkIcon 
-                    @click="removeTask()" 
+                    @click="removePhase()" 
                     class="mb-3 h-6 w-6 ml-3 text-red-500 hover:cursor-pointer" 
                     aria-hidden="true" 
                 />
             </div>
             
         </div>
-        <template v-if="currentKanban.tasks.length > 0">
-            <perfect-scrollbar :options="{suppressScrollX: true}">
-                <div class="h-[500px]">
+        
+        <perfect-scrollbar :options="{suppressScrollX: true}">
+            <div class="h-[500px]">
+                <VueDraggableNext 
+                    :list="currentKanban.tasks" 
+                    @change="checkMove" 
+                    group="task"
+                    @end="onEnd"
+                >
                     <task-card 
                         v-for="(task, index) in currentKanban.tasks" 
                         :key="index"
                         :task="task"
                     />
-                </div>
-            </perfect-scrollbar>
-        </template>
+                </VueDraggableNext>
+            </div>
+        </perfect-scrollbar>
        
         
         <!-- A card to create a new task -->
@@ -51,6 +57,7 @@
 // get the props
 import { useKanbanStore } from '../stores/kanban';
 import { PlusIcon, CheckCircleIcon, XMarkIcon } from '@heroicons/vue/20/solid';
+import { VueDraggableNext } from 'vue-draggable-next'
 import { computed } from "vue";
 
 const kanban = useKanbanStore()
@@ -85,13 +92,30 @@ const createTask = function () {
     kanban.creatingTaskProps.phase_id = props.phase_id;
 }
 
-const removeTask = async () => {
+const removePhase = async () => {
     try {
         await axios.delete('/api/phases/' + props.phase_id);
         kanban.phases = kanban.phases.filter((item) => item.id != props.phase_id)
     } catch (error) {
         console.log(error)
     }
+}
+
+const checkMove = async (event) => {
+    if (event.hasOwnProperty("added")) {
+        const task_id = event.added.element.id
+        const task = currentKanban.value.tasks.filter(item => item.id == task_id)
+        const params = {
+            old_phase_id: task.phase_id,
+            phase_id: props.phase_id
+        }
+        try {   
+            const { data } = await axios.put('/api/tasks/' + event.added.element.id, params);
+        } catch (e) {
+            console.log(e)
+        }
+    }
+    currentKanban.value.task_count = currentKanban.value.tasks.length;
 }
 
 </script>

@@ -151,7 +151,7 @@
             class="absolute top-0 right-1 h-6 w-6 rounded-full hover:cursor-pointer text-white bg-sky-950" 
             @click="isCreatePhase=true"
         />
-        <div id="kanban-container" class="flex-1 flex overflow-auto scrollbar-hide shadow-lg">
+        <perfect-scrollbar :options="{suppressScrollY: true}" class="flex-1 flex  shadow-lg">
             <div class="text-gray-900">
                 <VueDraggableNext 
                     :list="kanban.phases" 
@@ -166,7 +166,7 @@
                     </task-column>
                 </VueDraggableNext>
             </div>
-        </div>
+        </perfect-scrollbar>
 
         <!-- Modal to edit the selected card -->
         <Teleport to="body">

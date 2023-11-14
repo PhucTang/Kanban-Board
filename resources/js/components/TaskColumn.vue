@@ -25,12 +25,13 @@
         </div>
         
         <perfect-scrollbar :options="{suppressScrollX: true}">
-            <div class="h-[500px]">
+            <div class="h-[100%]">
                 <VueDraggableNext 
                     :list="currentKanban.tasks" 
                     @change="checkMove" 
+                    :emptyinsertThresholdHeight="800"
                     group="task"
-                    @end="onEnd"
+                    class="h-[calc(100vh-280px)]"
                 >
                     <task-card 
                         v-for="(task, index) in currentKanban.tasks" 

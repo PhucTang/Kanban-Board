@@ -103,15 +103,35 @@ const removePhase = async () => {
 }
 
 const checkMove = async (event) => {
+    console.log(event)
     if (event.hasOwnProperty("added")) {
         const task_id = event.added.element.id
         const task = currentKanban.value.tasks.filter(item => item.id == task_id)
+        console.log(task)
         const params = {
-            old_phase_id: task.phase_id,
-            phase_id: props.phase_id
+            old_phase_id: task[0]?.phase_id,
+            phase_id: currentKanban.value.id,
+            old_order_number: event.added.oldIndex + 1,
+            order_number: event.added.newIndex + 1,
+        }
+        console.log(params)
+        try {   
+            const { data } = await axios.put('/api/tasks/' + task_id, params);
+        } catch (e) {
+            console.log(e)
+        }
+    } 
+    if (event.hasOwnProperty("moved")) {
+        const task_id = event.moved.element.id
+        const task = currentKanban.value.tasks.filter(item => item.id == task_id)
+        const params = {
+            old_phase_id: props.phase_id,
+            phase_id: task[0].phase_id,
+            old_order_number: event.moved.oldIndex + 1,
+            order_number: event.moved.newIndex + 1,
         }
         try {   
-            const { data } = await axios.put('/api/tasks/' + event.added.element.id, params);
+            const { data } = await axios.put('/api/tasks/' + event.moved.element.id, params);
         } catch (e) {
             console.log(e)
         }

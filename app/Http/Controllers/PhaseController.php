@@ -31,7 +31,9 @@ class PhaseController extends Controller
     public function store(StorePhaseRequest $request)
     {
         $phase = Phase::create($request->validated());
-        return Phase::with('tasks.user')
+            return Phase::with(['tasks.user' => function ($q){
+                $q->orderBy('order_number');
+            }])
             ->leftJoin('tasks', 'phases.id', '=', 'tasks.phase_id')
             ->where("phases.id", $phase->fresh()->id)
             ->select(DB::raw('count(tasks.id) as task_count, phases.*'))

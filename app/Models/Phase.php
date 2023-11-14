@@ -17,6 +17,10 @@ class Phase extends Model
 
     function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class)
+            ->select('tasks.*')
+            ->join('users', 'tasks.user_id', 'users.id')
+            ->orderBy('tasks.order_number', 'asc')
+        ;
     }
 }

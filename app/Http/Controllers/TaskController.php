@@ -83,7 +83,6 @@ class TaskController extends Controller
     public function update(UpdateTaskRequest $request, Task $task)
     {
         if ($task) {
-
             // check and save completion 
             $date = $task->completed_at;
             $phases = Phase::where('id', $request->phase_id)->first();
@@ -106,7 +105,6 @@ class TaskController extends Controller
                     }
                 });
 
-
                 $oldChunks = DB::table('tasks')->where('phase_id', $request->old_phase_id)
                 ->orderBy('tasks.order_number', 'ASC')
                 ->chunkById(100, function (Collection $tasks) use ($task) {
@@ -120,12 +118,6 @@ class TaskController extends Controller
                         }
                     }
                 });
-
-                Task::where('id', $task->id)->update([
-                    'phase_id' => $request->phase_id,
-                    'order_number' => $request->order_number
-                ]);
-                
             } else {
                 // change order_number in the same phase 
                 if ($request->phase_id == $request->old_phase_id) {
@@ -136,16 +128,15 @@ class TaskController extends Controller
                         'order_number' => $request->old_order_number,
                     ]);
                 } 
-
-                Task::where('id', $task->id)->update([
-                    'name' => $request->name ? $request->name: $task->name,
-                    'phase_id' => $request->phase_id ? $request->phase_id: $task->phase_id,
-                    'user_id' => $request->user_id ? $request->user_id: $task->user_id,
-                    'order_number' => $request->order_number ? $request->order_number: $task->order_number,
-                    'completed_at' => $date,
-                ]);
-               
             }
+
+            Task::where('id', $task->id)->update([
+                'name' => $request->name ? $request->name: $task->name,
+                'phase_id' => $request->phase_id ? $request->phase_id: $task->phase_id,
+                'user_id' => $request->user_id ? $request->user_id: $task->user_id,
+                'order_number' => $request->order_number ? $request->order_number: $task->order_number,
+                'completed_at' => $date,
+            ]);
            
             return Task::with('user')->where('id', $task->id)->first();
         }
